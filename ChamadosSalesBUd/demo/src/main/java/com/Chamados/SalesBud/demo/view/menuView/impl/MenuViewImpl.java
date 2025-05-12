@@ -28,14 +28,19 @@ ChamadoView chamadoView;
         System.out.println();
         System.out.println();
         while (valido) {
+            System.out.println();
             System.out.println(ColorClassSelector.ANSI_PURPLE+"SISTEMA HELPER SALESBUD");
             System.out.println("Bem vindo "+usuarioLogado.userName());
             System.out.println("---------------------------------------------------------------------------------");
             System.out.println("Oque é preciso Hoje?");
             System.out.println("1 - Registrar chamado");
-            System.out.println("2 - Atualizar chamado");
+            System.out.println("2 - listar chamdos por empresa");
             System.out.println("3 - Gerar CSV");
+            System.out.println("4 - Fechar Chamado");
+            System.out.println("5 - Listar "+ColorClassSelector.ANSI_RED+"TODOS"+ColorClassSelector.ANSI_PURPLE+ " chamados");
             System.out.println("10 - Sair");
+            System.out.println("-------------------------------------------------------------------------------------");
+            System.out.println();
             int opcao = sc.nextInt();
 
             switch (opcao){
@@ -48,6 +53,18 @@ ChamadoView chamadoView;
                 case 3:
                     chamadoController.gerarCsv();
                     break;
+                case 2:
+                    chamadoView.listarChamdosPorEmpresa();
+                    break;
+                case 4:
+                    chamadoView.fecharChamadoView();
+                    break;
+                case 5: chamadoView.listarChamadosAllView();
+                break;
+                case 6:
+                    chamadoView.menuExportCsvEmpresa();
+                    break;
+
             }
         }
 

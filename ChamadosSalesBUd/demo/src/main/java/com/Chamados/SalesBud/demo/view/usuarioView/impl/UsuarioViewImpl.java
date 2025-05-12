@@ -26,6 +26,9 @@ public class UsuarioViewImpl implements UsuarioView {
     @Autowired
     UsuarioServices usuarioServices;
 
+    @Autowired
+    UsuarioController usuarioController;
+
 
     @Override
     public void cadastrarUsuario() {
@@ -62,7 +65,7 @@ public class UsuarioViewImpl implements UsuarioView {
 
 
         try {
-            usuario = usuarioServices.cadastro(username, senha);
+            usuario = usuarioController.cadastrarUsuario(username, senha);
         } catch (AlreadyExistsLogin e) {
             System.out.println(e.getMessage());
             cadastrarUsuario();
@@ -96,7 +99,7 @@ public class UsuarioViewImpl implements UsuarioView {
 
 
             try {
-                usuario = usuarioServices.login(username, senha);
+                usuario = usuarioController.logarUsuario(username, senha);
             } catch (LoginNotFound e) {
                 System.out.println(e.getMessage());
                 int op = -1;

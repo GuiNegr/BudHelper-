@@ -35,10 +35,11 @@ public class UsuarioServicesImpl implements UsuarioServices {
 
     @Override
     public Optional<Usuario> cadastro(String name, String senha) throws AlreadyExistsLogin {
-        Optional<Usuario> newUsuario = usuarioRepository.findByUserName(name);
-        if (newUsuario.isEmpty()) {
-           usuarioRepository.save(new Usuario(name, senha, UserStatus.ATIVO));
-           return newUsuario;
+        Optional<Usuario> existing = usuarioRepository.findByUserName(name);
+        if (existing.isEmpty()) {
+            Usuario usuario = new Usuario(name, senha, UserStatus.ATIVO);
+            Usuario saved = usuarioRepository.save(usuario);
+            return Optional.of(saved);
         }
         throw new AlreadyExistsLogin();
     }
