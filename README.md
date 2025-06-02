@@ -13,9 +13,9 @@
   # como faço isso?
     ### Instancie o MySQl no docker
    No terminal ->
-                docker pull mysql:latest
-                docker run --name (aqui coloque o nome de sua imagem) -e MYSQL_ROOT_PASSWORD=s(senha do seu bd) -d -p 3306:3306 mysql:latest
-                docker exec -it (o nome da imagem) mysql -u root -p
+                \n docker pull mysql:latest
+               \n  docker run --name (aqui coloque o nome de sua imagem) -e MYSQL_ROOT_PASSWORD=s(senha do seu bd) -d -p 3306:3306 mysql:latest
+                \n docker exec -it (o nome da imagem) mysql -u root -p
 
     ### instanciar o ubuntu no docker
     no terminal ->
