@@ -1,11 +1,13 @@
 package com.Chamados.SalesBud.demo.services;
 
+import com.Chamados.SalesBud.demo.bean.DTO.ChamadosBudDTO;
 import com.Chamados.SalesBud.demo.bean.DTO.EmpresaDto;
 import com.Chamados.SalesBud.demo.bean.DTO.UsuarioDto;
 import com.Chamados.SalesBud.demo.bean.entity.ChamadosBud;
 import com.Chamados.SalesBud.demo.bean.enunPackage.ClassificaChamado;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ChamadoService {
@@ -17,4 +19,6 @@ public interface ChamadoService {
     public void fecharChamdo(int idChamado);
     public void exportarCsvBDCompleto();
     public void exportarCsvSoComUmaEmpresa(int idEmpresa);
+
+    public void chamadosViaRabbitMQ(Map<String, Object> jsonMap);
 }

@@ -17,6 +17,5 @@ public class ViewComponetInic implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        usuarioViewImpl.telaLogin();
-    }
+        new Thread(() -> usuarioViewImpl.telaLogin()).start();    }
 }

@@ -6,16 +6,19 @@ import com.Chamados.SalesBud.demo.bean.DTO.UsuarioDto;
 import com.Chamados.SalesBud.demo.bean.entity.ChamadosBud;
 import com.Chamados.SalesBud.demo.bean.entity.Empresa;
 import com.Chamados.SalesBud.demo.bean.entity.Usuario;
+import com.Chamados.SalesBud.demo.bean.enunPackage.CategEmpresa;
 import com.Chamados.SalesBud.demo.bean.enunPackage.ClassificaChamado;
 import com.Chamados.SalesBud.demo.bean.enunPackage.StatusChamado;
 import com.Chamados.SalesBud.demo.exception.EmpresaNotFound;
 import com.Chamados.SalesBud.demo.repository.ChamadosBudRepository;
 import com.Chamados.SalesBud.demo.repository.EmpresaRepository;
+import com.Chamados.SalesBud.demo.repository.UsuarioRepository;
 import com.Chamados.SalesBud.demo.services.ChamadoService;
 import com.Chamados.SalesBud.demo.view.chamadoView.ChamadoView;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,7 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,6 +43,8 @@ public class ChamadosServiceImpl implements ChamadoService {
 
     @Autowired
     EmpresaRepository empresaRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
 
     @Override
@@ -95,7 +101,7 @@ public class ChamadosServiceImpl implements ChamadoService {
         try (
                 FileWriter writer = new FileWriter(csvPath);
                 CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                        .withHeader("ID", "Data", "Hora", "Status", "Observações", "Classificação", "Empresa", "Usuário"))
+                        .withHeader("ID", "Data", "Hora", "Status", "Observações", "Classificação", "Empresa","Classificacao"))
         ) {
             for (ChamadosBud chamado : chamadosBudList) {
                 csvPrinter.printRecord(
@@ -106,7 +112,7 @@ public class ChamadosServiceImpl implements ChamadoService {
                         chamado.getCampoObsChamado(),
                         chamado.getClassificaChamado(),
                         chamado.getEmpresaChamado().getEmpresaNome(),
-                        chamado.getUsuarioChamado().getUserName()
+                        chamado.getEmpresaChamado().getEmpresaTipo()
                 );
             }
 
@@ -149,6 +155,28 @@ public class ChamadosServiceImpl implements ChamadoService {
 
         } catch ( IOException e) {
             System.err.println("Erro ao exportar CSV: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void chamadosViaRabbitMQ(Map<String, Object> jsonMap) {
+        String descChamado = "Usuario: "+jsonMap.get("email").toString()+ "Reclama de: "+jsonMap.get("queixa").toString();
+        Optional<Empresa> empresa = empresaRepository.buscarPrimeiroPorNomeAproximado(jsonMap.get("empresa").toString());
+        LocalDate dataHoje = LocalDate.now();
+        LocalTime horaAgora = LocalTime.now();
+        Date dataSql = Date.valueOf(dataHoje);
+        Time horaSql = Time.valueOf(horaAgora);
+        usuarioRepository.findAll();
+        if(empresa.isPresent()){
+            ChamadosBud chamadosBud = new ChamadosBud(dataSql,horaSql,StatusChamado.Aberto,descChamado,ClassificaChamado.NAO_GRAVE,empresa.get(), usuarioRepository.findAll().get(0));
+            chamadosBudRepository.save(chamadosBud);
+        }else {
+            Empresa empresaNova = new Empresa();
+            empresaNova.setEmpresaNome(jsonMap.get("empresa").toString());
+            empresaNova.setEmpresaTipo(CategEmpresa.Commercial);
+            empresaRepository.save(empresaNova);
+            ChamadosBud chamadosBud = new ChamadosBud(dataSql,horaSql,StatusChamado.Aberto,descChamado,ClassificaChamado.NAO_GRAVE,empresaNova, usuarioRepository.findAll().get(0));
+            chamadosBudRepository.save(chamadosBud);
         }
     }
 }
